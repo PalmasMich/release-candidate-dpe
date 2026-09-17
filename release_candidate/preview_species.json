@@ -1,0 +1,33 @@
+{
+  "species": [
+    {
+      "id": "SPECIES_RC_TURTLE_01",
+      "display_name": "Tartrek",
+      "role": "starter",
+      "types": ["TYPE_GRASS", "TYPE_GROUND"],
+      "base_stats": {
+        "hp": 48,
+        "attack": 55,
+        "defense": 60,
+        "sp_attack": 42,
+        "sp_defense": 55,
+        "speed": 40
+      },
+      "catch_rate": 45,
+      "exp_yield": 64,
+      "gender_ratio_female_percent": 12.5,
+      "egg_cycles": 20,
+      "friendship": 50,
+      "growth_rate": "GROWTH_MEDIUM_SLOW",
+      "egg_groups": ["EGG_GROUP_MONSTER", "EGG_GROUP_FIELD"],
+      "abilities": ["ABILITY_OVERGROW", "ABILITY_NONE"],
+      "hidden_ability": "ABILITY_SHELLARMOR",
+      "learnset": [
+        [1, "MOVE_TACKLE"],
+        [1, "MOVE_WITHDRAW"],
+        [5, "MOVE_VINEWHIP"],
+        [7, "MOVE_MUDSLAP"]
+      ]
+    }
+  ]
+}
