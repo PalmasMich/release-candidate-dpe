@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -9,10 +10,12 @@ MANIFEST = ROOT / "release_candidate" / "preview_species.json"
 BASE_STATS = ROOT / "src" / "Base_Stats.c"
 LEARNSETS = ROOT / "src" / "Learnsets.c"
 NAMES = ROOT / "strings" / "Pokemon_Name_Table.string"
+BACKUP_DIR = ROOT / "build" / "rc_overlay_backup"
 
 BASE_MARKER = "/* RC_OVERLAY:BASE_STATS */"
 LEARNSET_MARKER = "/* RC_OVERLAY:LEARNSETS */"
 NAME_MARKER = "# RC_OVERLAY:SPECIES_NAMES"
+TARGETS = (BASE_STATS, LEARNSETS, NAMES)
 
 
 def load_species():
@@ -128,18 +131,47 @@ def patch_names(text: str, species) -> str:
     return text.rstrip() + "\n\n" + render_names(species)
 
 
+def backup_targets():
+    BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+    for target in TARGETS:
+        backup = BACKUP_DIR / target.relative_to(ROOT)
+        backup.parent.mkdir(parents=True, exist_ok=True)
+        if not backup.exists():
+            shutil.copy2(target, backup)
+
+
+def restore_overlay():
+    if not BACKUP_DIR.exists():
+        return
+    for target in TARGETS:
+        backup = BACKUP_DIR / target.relative_to(ROOT)
+        if backup.exists():
+            shutil.copy2(backup, target)
+    shutil.rmtree(BACKUP_DIR)
+    print("Restored upstream DPE source files after Release Candidate overlay.")
+
+
 def apply_overlay():
     species = load_species()
-    BASE_STATS.write_text(patch_base_stats(BASE_STATS.read_text(encoding="utf-8"), species), encoding="utf-8")
-    LEARNSETS.write_text(patch_learnsets(LEARNSETS.read_text(encoding="utf-8"), species), encoding="utf-8")
-    NAMES.write_text(patch_names(NAMES.read_text(encoding="utf-8"), species), encoding="utf-8")
+    backup_targets()
+    try:
+        BASE_STATS.write_text(patch_base_stats(BASE_STATS.read_text(encoding="utf-8"), species), encoding="utf-8")
+        LEARNSETS.write_text(patch_learnsets(LEARNSETS.read_text(encoding="utf-8"), species), encoding="utf-8")
+        NAMES.write_text(patch_names(NAMES.read_text(encoding="utf-8"), species), encoding="utf-8")
+    except Exception:
+        restore_overlay()
+        raise
     print(f"Applied Release Candidate overlay for {len(species)} species.")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Apply source-controlled Release Candidate data to upstream DPE tables.")
-    parser.parse_args()
-    apply_overlay()
+    parser = argparse.ArgumentParser(description="Apply or restore source-controlled Release Candidate data overlays for DPE.")
+    parser.add_argument("command", choices=("apply", "restore"), nargs="?", default="apply")
+    args = parser.parse_args()
+    if args.command == "restore":
+        restore_overlay()
+    else:
+        apply_overlay()
 
 
 if __name__ == "__main__":
