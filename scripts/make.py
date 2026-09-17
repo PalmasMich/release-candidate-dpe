@@ -79,6 +79,13 @@ def RunPythonScript(scriptPath: str, *args: str) -> int:
     return os.system(command)
 
 
+def GenerateReleaseCandidateAssets():
+    result = RunPythonScript("scripts/generate_rc_sprite_assets.py")
+    if result != 0:
+        print("Error: Release Candidate sprite assets could not be generated.")
+        sys.exit(1)
+
+
 def ApplyReleaseCandidateOverlay():
     result = RunPythonScript("scripts/apply_release_candidate_overlay.py", "apply")
     if result != 0:
@@ -128,6 +135,7 @@ def main():
 
             EditLinker(offset)
             EditInsert(offset)
+            GenerateReleaseCandidateAssets()
             ApplyReleaseCandidateOverlay()
             try:
                 BuildCode()
