@@ -14,7 +14,7 @@ BACKUP_DIR = ROOT / "build" / "rc_overlay_backup"
 
 BASE_MARKER = "/* RC_OVERLAY:BASE_STATS */"
 LEARNSET_MARKER = "/* RC_OVERLAY:LEARNSETS */"
-NAME_MARKER = "# RC_OVERLAY:SPECIES_NAMES"
+NAME_MARKER = "#org @NAME_RC_TURTLE_01"
 TARGETS = (BASE_STATS, LEARNSETS, NAMES)
 
 
@@ -92,7 +92,7 @@ def render_learnset_table_entries(species):
 
 
 def render_names(species):
-    chunks = [NAME_MARKER]
+    chunks = []
     for mon in species:
         symbol = mon["id"].replace("SPECIES_", "NAME_")
         chunks.extend([f"#org @{symbol}", mon["display_name"], ""])
