@@ -144,9 +144,63 @@ def generate_tartrek_assets(root: Path):
     return written
 
 
+
+
+def _mistrillo_front_sprite():
+    canvas = _canvas(64, 64)
+    _outline_ellipse(canvas, 31, 38, 13, 10, 11, 10)
+    _outline_ellipse(canvas, 41, 32, 8, 7, 11, 10)
+    _rect(canvas, 47, 31, 54, 33, 15)
+    _rect(canvas, 23, 36, 28, 49, 1)
+    _rect(canvas, 34, 36, 39, 49, 1)
+    _rect(canvas, 16, 37, 23, 40, 4)
+    _rect(canvas, 39, 37, 47, 40, 4)
+    _rect(canvas, 39, 29, 40, 30, 11)
+    _rect(canvas, 26, 48, 29, 50, 12)
+    _rect(canvas, 34, 48, 37, 50, 12)
+    return canvas
+
+
+def _mistrillo_back_sprite():
+    canvas = _canvas(64, 64)
+    _outline_ellipse(canvas, 31, 39, 14, 11, 11, 10)
+    _outline_ellipse(canvas, 41, 31, 8, 7, 11, 10)
+    _rect(canvas, 18, 36, 27, 40, 4)
+    _rect(canvas, 36, 36, 47, 40, 4)
+    _rect(canvas, 26, 48, 29, 51, 12)
+    _rect(canvas, 34, 48, 37, 51, 12)
+    _rect(canvas, 46, 30, 52, 32, 15)
+    return canvas
+
+
+def _mistrillo_icon_sprite():
+    canvas = _canvas(32, 64)
+    for frame, yoff in enumerate((0, 32)):
+        bob = frame
+        _outline_ellipse(canvas, 15, yoff + 18 + bob, 8, 6, 11, 10)
+        _outline_ellipse(canvas, 22, yoff + 14 + bob, 5, 4, 11, 10)
+        _rect(canvas, 26, yoff + 14 + bob, 29, yoff + 15 + bob, 15)
+        _rect(canvas, 8, yoff + 17 + bob, 12, yoff + 19 + bob, 4)
+    return canvas
+
+
+def generate_mistrillo_assets(root: Path):
+    root = Path(root)
+    outputs = [
+        (root / "graphics/frontspr/gFrontSprite1297RCMistrillo.png", _mistrillo_front_sprite(), 64, 64),
+        (root / "graphics/backspr/gBackShinySprite1297RCMistrillo.png", _mistrillo_back_sprite(), 64, 64),
+        (root / "graphics/pokeicon/gIconSprite1297RCMistrillo.png", _mistrillo_icon_sprite(), 32, 64),
+    ]
+    written = []
+    for path, pixels, width, height in outputs:
+        write_indexed_png(path, pixels, width, height)
+        written.append(path)
+    return written
+
+
 def main():
     root = Path(__file__).resolve().parents[1]
-    for path in generate_tartrek_assets(root):
+    for path in generate_tartrek_assets(root) + generate_mistrillo_assets(root):
         print(path.relative_to(root))
 
 
