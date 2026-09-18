@@ -62,6 +62,8 @@ def camel_name(display_name: str) -> str:
 def sprite_slot(mon) -> int:
     slots = {
         "SPECIES_RC_TURTLE_01": 1294,
+        "SPECIES_RC_FROG_01": 1295,
+        "SPECIES_RC_FIREFOX_01": 1296,
         "SPECIES_RC_CAGLIARI_WILD_01": 1297,
     }
     try:
