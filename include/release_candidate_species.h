@@ -8,11 +8,16 @@
  * do not renumber or rewrite upstream species definitions.
  */
 
-#define SPECIES_RC_TURTLE_01          (SPECIES_URSHIFU_RAPID_GIGA + 1)
-#define SPECIES_RC_FROG_01            (SPECIES_RC_TURTLE_01 + 1)
-#define SPECIES_RC_FIREFOX_01         (SPECIES_RC_FROG_01 + 1)
-#define SPECIES_RC_CAGLIARI_WILD_01   (SPECIES_RC_FIREFOX_01 + 1)
-#define SPECIES_RC_CAGLIARI_WILD_02   (SPECIES_RC_CAGLIARI_WILD_01 + 1)
+/*
+ * Reserve IDs after CFRU's complete species range (which ends at 0x50D).
+ * DPE's upstream range ends earlier, so using its immediate next ID would
+ * collide with CFRU-only species such as G-Max/PLA forms.
+ */
+#define SPECIES_RC_TURTLE_01          0x50E
+#define SPECIES_RC_FROG_01            0x50F
+#define SPECIES_RC_FIREFOX_01         0x510
+#define SPECIES_RC_CAGLIARI_WILD_01   0x511
+#define SPECIES_RC_CAGLIARI_WILD_02   0x512
 
 /* Extend DPE table sizing without altering the upstream species.h file. */
 #undef NUM_SPECIES
