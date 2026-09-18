@@ -42,6 +42,36 @@ class ReleaseCandidateSpriteAssetTest(unittest.TestCase):
             self.assertEqual(read_png_header(out / "graphics/backspr/gBackShinySprite1294RCTartrek.png"), (64, 64, 4, 3))
             self.assertEqual(read_png_header(out / "graphics/pokeicon/gIconSprite1294RCTartrek.png"), (32, 64, 4, 3))
 
+    def test_frobyte_generator_writes_dpe_ready_indexed_assets(self):
+        generator = load_generator()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            written = generator.generate_frobyte_assets(out)
+            self.assertEqual(
+                {p.relative_to(out).as_posix() for p in written},
+                {
+                    "graphics/frontspr/gFrontSprite1295RCFrobyte.png",
+                    "graphics/backspr/gBackShinySprite1295RCFrobyte.png",
+                    "graphics/pokeicon/gIconSprite1295RCFrobyte.png",
+                },
+            )
+            self.assertEqual(read_png_header(out / "graphics/frontspr/gFrontSprite1295RCFrobyte.png"), (64, 64, 4, 3))
+
+    def test_emberfox_generator_writes_dpe_ready_indexed_assets(self):
+        generator = load_generator()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            written = generator.generate_emberfox_assets(out)
+            self.assertEqual(
+                {p.relative_to(out).as_posix() for p in written},
+                {
+                    "graphics/frontspr/gFrontSprite1296RCEmberfox.png",
+                    "graphics/backspr/gBackShinySprite1296RCEmberfox.png",
+                    "graphics/pokeicon/gIconSprite1296RCEmberfox.png",
+                },
+            )
+            self.assertEqual(read_png_header(out / "graphics/frontspr/gFrontSprite1296RCEmberfox.png"), (64, 64, 4, 3))
+
     def test_mistrillo_generator_writes_dpe_ready_indexed_assets(self):
         generator = load_generator()
         with tempfile.TemporaryDirectory() as tmp:
