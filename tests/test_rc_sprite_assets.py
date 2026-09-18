@@ -42,6 +42,23 @@ class ReleaseCandidateSpriteAssetTest(unittest.TestCase):
             self.assertEqual(read_png_header(out / "graphics/backspr/gBackShinySprite1294RCTartrek.png"), (64, 64, 4, 3))
             self.assertEqual(read_png_header(out / "graphics/pokeicon/gIconSprite1294RCTartrek.png"), (32, 64, 4, 3))
 
+    def test_mistrillo_generator_writes_dpe_ready_indexed_assets(self):
+        generator = load_generator()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            written = generator.generate_mistrillo_assets(out)
+            self.assertEqual(
+                {p.relative_to(out).as_posix() for p in written},
+                {
+                    "graphics/frontspr/gFrontSprite1297RCMistrillo.png",
+                    "graphics/backspr/gBackShinySprite1297RCMistrillo.png",
+                    "graphics/pokeicon/gIconSprite1297RCMistrillo.png",
+                },
+            )
+            self.assertEqual(read_png_header(out / "graphics/frontspr/gFrontSprite1297RCMistrillo.png"), (64, 64, 4, 3))
+            self.assertEqual(read_png_header(out / "graphics/backspr/gBackShinySprite1297RCMistrillo.png"), (64, 64, 4, 3))
+            self.assertEqual(read_png_header(out / "graphics/pokeicon/gIconSprite1297RCMistrillo.png"), (32, 64, 4, 3))
+
 
 if __name__ == "__main__":
     unittest.main()
