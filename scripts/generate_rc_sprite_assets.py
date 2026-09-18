@@ -198,9 +198,124 @@ def generate_mistrillo_assets(root: Path):
     return written
 
 
+
+
+def _frobyte_front_sprite():
+    canvas = _canvas(64, 64)
+    _outline_ellipse(canvas, 31, 39, 14, 11, 1, 14)
+    _outline_ellipse(canvas, 31, 28, 10, 8, 1, 14)
+    _ellipse(canvas, 27, 26, 1, 1, 11)
+    _ellipse(canvas, 35, 26, 1, 1, 11)
+    _rect(canvas, 24, 33, 38, 35, 4)
+    _rect(canvas, 19, 41, 25, 45, 2)
+    _rect(canvas, 37, 41, 43, 45, 2)
+    _rect(canvas, 25, 49, 29, 52, 10)
+    _rect(canvas, 34, 49, 38, 52, 10)
+    return canvas
+
+
+def _frobyte_back_sprite():
+    canvas = _canvas(64, 64)
+    _outline_ellipse(canvas, 31, 40, 15, 11, 1, 14)
+    _outline_ellipse(canvas, 31, 29, 10, 8, 1, 14)
+    _rect(canvas, 23, 34, 39, 36, 4)
+    _rect(canvas, 18, 41, 24, 45, 2)
+    _rect(canvas, 38, 41, 44, 45, 2)
+    _rect(canvas, 25, 49, 29, 52, 10)
+    _rect(canvas, 34, 49, 38, 52, 10)
+    return canvas
+
+
+def _frobyte_icon_sprite():
+    canvas = _canvas(32, 64)
+    for frame, yoff in enumerate((0, 32)):
+        bob = frame
+        _outline_ellipse(canvas, 15, yoff + 18 + bob, 8, 7, 1, 14)
+        _outline_ellipse(canvas, 15, yoff + 11 + bob, 6, 5, 1, 14)
+        _rect(canvas, 8, yoff + 19 + bob, 11, yoff + 21 + bob, 2)
+        _rect(canvas, 20, yoff + 19 + bob, 23, yoff + 21 + bob, 2)
+    return canvas
+
+
+def generate_frobyte_assets(root: Path):
+    root = Path(root)
+    outputs = [
+        (root / "graphics/frontspr/gFrontSprite1295RCFrobyte.png", _frobyte_front_sprite(), 64, 64),
+        (root / "graphics/backspr/gBackShinySprite1295RCFrobyte.png", _frobyte_back_sprite(), 64, 64),
+        (root / "graphics/pokeicon/gIconSprite1295RCFrobyte.png", _frobyte_icon_sprite(), 32, 64),
+    ]
+    written = []
+    for path, pixels, width, height in outputs:
+        write_indexed_png(path, pixels, width, height)
+        written.append(path)
+    return written
+
+
+def _emberfox_front_sprite():
+    canvas = _canvas(64, 64)
+    _outline_ellipse(canvas, 31, 40, 14, 10, 11, 13)
+    _outline_ellipse(canvas, 31, 29, 9, 8, 11, 13)
+    _rect(canvas, 23, 18, 27, 25, 11)
+    _rect(canvas, 35, 18, 39, 25, 11)
+    _ellipse(canvas, 28, 28, 1, 1, 10)
+    _ellipse(canvas, 35, 28, 1, 1, 10)
+    _rect(canvas, 28, 35, 34, 37, 5)
+    _rect(canvas, 18, 38, 24, 42, 13)
+    _rect(canvas, 39, 38, 46, 42, 13)
+    _rect(canvas, 24, 49, 28, 52, 11)
+    _rect(canvas, 35, 49, 39, 52, 11)
+    _rect(canvas, 44, 42, 51, 46, 15)
+    return canvas
+
+
+def _emberfox_back_sprite():
+    canvas = _canvas(64, 64)
+    _outline_ellipse(canvas, 31, 41, 14, 10, 11, 13)
+    _outline_ellipse(canvas, 31, 29, 9, 8, 11, 13)
+    _rect(canvas, 23, 18, 27, 25, 11)
+    _rect(canvas, 35, 18, 39, 25, 11)
+    _rect(canvas, 18, 39, 24, 43, 13)
+    _rect(canvas, 39, 39, 46, 43, 13)
+    _rect(canvas, 24, 49, 28, 52, 11)
+    _rect(canvas, 35, 49, 39, 52, 11)
+    _rect(canvas, 44, 42, 51, 46, 15)
+    return canvas
+
+
+def _emberfox_icon_sprite():
+    canvas = _canvas(32, 64)
+    for frame, yoff in enumerate((0, 32)):
+        bob = frame
+        _outline_ellipse(canvas, 15, yoff + 19 + bob, 8, 6, 11, 13)
+        _outline_ellipse(canvas, 15, yoff + 12 + bob, 6, 5, 11, 13)
+        _rect(canvas, 10, yoff + 5 + bob, 12, yoff + 9 + bob, 11)
+        _rect(canvas, 18, yoff + 5 + bob, 20, yoff + 9 + bob, 11)
+        _rect(canvas, 23, yoff + 20 + bob, 27, yoff + 22 + bob, 15)
+    return canvas
+
+
+def generate_emberfox_assets(root: Path):
+    root = Path(root)
+    outputs = [
+        (root / "graphics/frontspr/gFrontSprite1296RCEmberfox.png", _emberfox_front_sprite(), 64, 64),
+        (root / "graphics/backspr/gBackShinySprite1296RCEmberfox.png", _emberfox_back_sprite(), 64, 64),
+        (root / "graphics/pokeicon/gIconSprite1296RCEmberfox.png", _emberfox_icon_sprite(), 32, 64),
+    ]
+    written = []
+    for path, pixels, width, height in outputs:
+        write_indexed_png(path, pixels, width, height)
+        written.append(path)
+    return written
+
+
 def main():
     root = Path(__file__).resolve().parents[1]
-    for path in generate_tartrek_assets(root) + generate_mistrillo_assets(root):
+    for path in (
+        generate_tartrek_assets(root)
+        + generate_frobyte_assets(root)
+        + generate_emberfox_assets(root)
+        + generate_mistrillo_assets(root)
+    ):
         print(path.relative_to(root))
 
 
