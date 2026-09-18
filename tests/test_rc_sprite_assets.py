@@ -34,12 +34,12 @@ class ReleaseCandidateSpriteAssetTest(unittest.TestCase):
                 {p.relative_to(out).as_posix() for p in written},
                 {
                     "graphics/frontspr/gFrontSprite1268RCTartrek.png",
-                    "graphics/backspr/gBackSprite1268RCTartrek.png",
+                    "graphics/backspr/gBackShinySprite1268RCTartrek.png",
                     "graphics/pokeicon/gIconSprite1268RCTartrek.png",
                 },
             )
             self.assertEqual(read_png_header(out / "graphics/frontspr/gFrontSprite1268RCTartrek.png"), (64, 64, 4, 3))
-            self.assertEqual(read_png_header(out / "graphics/backspr/gBackSprite1268RCTartrek.png"), (64, 64, 4, 3))
+            self.assertEqual(read_png_header(out / "graphics/backspr/gBackShinySprite1268RCTartrek.png"), (64, 64, 4, 3))
             self.assertEqual(read_png_header(out / "graphics/pokeicon/gIconSprite1268RCTartrek.png"), (32, 64, 4, 3))
 
 
