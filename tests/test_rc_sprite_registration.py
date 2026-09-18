@@ -36,19 +36,19 @@ class ReleaseCandidateSpriteRegistrationTest(unittest.TestCase):
         combined = "\n".join(rendered.values())
 
         self.assertIn(
-            "[SPECIES_RC_TURTLE_01] = {gFrontSprite1268RCTartrekTiles",
+            "[SPECIES_RC_TURTLE_01] = {gFrontSprite1294RCTartrekTiles",
             combined,
         )
         self.assertIn(
-            "[SPECIES_RC_TURTLE_01] = {gBackShinySprite1268RCTartrekTiles",
+            "[SPECIES_RC_TURTLE_01] = {gBackShinySprite1294RCTartrekTiles",
             combined,
         )
         self.assertIn(
-            "[SPECIES_RC_TURTLE_01] = gIconSprite1268RCTartrekTiles",
+            "[SPECIES_RC_TURTLE_01] = gIconSprite1294RCTartrekTiles",
             combined,
         )
-        self.assertIn("gFrontSprite1268RCTartrekPal", combined)
-        self.assertIn("gBackShinySprite1268RCTartrekPal", combined)
+        self.assertIn("gFrontSprite1294RCTartrekPal", combined)
+        self.assertIn("gBackShinySprite1294RCTartrekPal", combined)
         self.assertIn("[SPECIES_RC_TURTLE_01] = 0x0", combined)
         self.assertIn(".size = 0x66", combined)
 
