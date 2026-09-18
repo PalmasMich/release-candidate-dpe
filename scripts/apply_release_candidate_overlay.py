@@ -61,7 +61,7 @@ def camel_name(display_name: str) -> str:
 
 def sprite_slot(mon) -> int:
     slots = {
-        "SPECIES_RC_TURTLE_01": 1268,
+        "SPECIES_RC_TURTLE_01": 1294,
     }
     try:
         return slots[mon["id"]]
