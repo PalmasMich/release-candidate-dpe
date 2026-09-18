@@ -10,12 +10,44 @@ MANIFEST = ROOT / "release_candidate" / "preview_species.json"
 BASE_STATS = ROOT / "src" / "Base_Stats.c"
 LEARNSETS = ROOT / "src" / "Learnsets.c"
 NAMES = ROOT / "strings" / "Pokemon_Name_Table.string"
+FRONT_TABLE = ROOT / "src" / "Front_Pic_Table.c"
+BACK_TABLE = ROOT / "src" / "Back_Pic_Table.c"
+ICON_TABLE = ROOT / "src" / "Icon_Table.c"
+PALETTE_TABLE = ROOT / "src" / "Palette_Table.c"
+SHINY_PALETTE_TABLE = ROOT / "src" / "Shiny_Palette_Table.c"
+ICON_PALETTE_TABLE = ROOT / "src" / "Icon_Palette_Table.c"
+FRONT_COORDS_TABLE = ROOT / "src" / "Front_Pic_Coords_Table.c"
+BACK_COORDS_TABLE = ROOT / "src" / "Back_Pic_Coords_Table.c"
+SPRITE_DATA = ROOT / "include" / "sprite_data.h"
 BACKUP_DIR = ROOT / "build" / "rc_overlay_backup"
 
 BASE_MARKER = "/* RC_OVERLAY:BASE_STATS */"
 LEARNSET_MARKER = "/* RC_OVERLAY:LEARNSETS */"
 NAME_MARKER = "#org @NAME_RC_TURTLE_01"
-TARGETS = (BASE_STATS, LEARNSETS, NAMES)
+FRONT_TABLE_MARKER = "/* RC_OVERLAY:FRONT_PIC_TABLE */"
+BACK_TABLE_MARKER = "/* RC_OVERLAY:BACK_PIC_TABLE */"
+ICON_TABLE_MARKER = "/* RC_OVERLAY:ICON_TABLE */"
+PALETTE_TABLE_MARKER = "/* RC_OVERLAY:PALETTE_TABLE */"
+SHINY_PALETTE_TABLE_MARKER = "/* RC_OVERLAY:SHINY_PALETTE_TABLE */"
+ICON_PALETTE_TABLE_MARKER = "/* RC_OVERLAY:ICON_PALETTE_TABLE */"
+FRONT_COORDS_MARKER = "/* RC_OVERLAY:FRONT_COORDS */"
+BACK_COORDS_MARKER = "/* RC_OVERLAY:BACK_COORDS */"
+SPRITE_DATA_MARKER = "/* RC_OVERLAY:SPRITE_DATA */"
+
+TARGETS = (
+    BASE_STATS,
+    LEARNSETS,
+    NAMES,
+    FRONT_TABLE,
+    BACK_TABLE,
+    ICON_TABLE,
+    PALETTE_TABLE,
+    SHINY_PALETTE_TABLE,
+    ICON_PALETTE_TABLE,
+    FRONT_COORDS_TABLE,
+    BACK_COORDS_TABLE,
+    SPRITE_DATA,
+)
 
 
 def load_species():
@@ -25,6 +57,16 @@ def load_species():
 
 def camel_name(display_name: str) -> str:
     return "".join(part.capitalize() for part in display_name.replace("-", " ").split())
+
+
+def sprite_slot(mon) -> int:
+    slots = {
+        "SPECIES_RC_TURTLE_01": 1268,
+    }
+    try:
+        return slots[mon["id"]]
+    except KeyError as exc:
+        raise ValueError(f"No sprite slot registered for {mon['id']}") from exc
 
 
 def render_base_stats(species):
@@ -99,6 +141,68 @@ def render_names(species):
     return "\n".join(chunks).rstrip() + "\n"
 
 
+def render_sprite_registration(species):
+    front = []
+    back = []
+    icons = []
+    palettes = []
+    shiny_palettes = []
+    icon_palettes = []
+    front_coords = []
+    back_coords = []
+    declarations = []
+
+    for mon in species:
+        slot = sprite_slot(mon)
+        cname = camel_name(mon["display_name"])
+        species_id = mon["id"]
+        front_symbol = f"gFrontSprite{slot}RC{cname}"
+        back_symbol = f"gBackShinySprite{slot}RC{cname}"
+        icon_symbol = f"gIconSprite{slot}RC{cname}"
+
+        front.append(
+            f"\t[{species_id}] = {{{front_symbol}Tiles, (64 * 64) / 2, {species_id}}},"
+        )
+        back.append(
+            f"\t[{species_id}] = {{{back_symbol}Tiles, (64 * 64) / 2, {species_id}}},"
+        )
+        icons.append(f"\t[{species_id}] = {icon_symbol}Tiles,")
+        palettes.append(
+            f"\t[{species_id}] = {{{front_symbol}Pal, {species_id}, 0x0}},"
+        )
+        shiny_palettes.append(
+            f"\t[{species_id}] = {{{back_symbol}Pal, {species_id} + NUM_SPECIES, 0x0}},"
+        )
+        icon_palettes.append(f"\t[{species_id}] = 0x0,")
+        front_coords.append(
+            f"\t[{species_id}] =\n\t{{\n\t\t.size = 0x66,\n\t\t.y_offset = 0x6,\n\t}},"
+        )
+        back_coords.append(
+            f"\t[{species_id}] =\n\t{{\n\t\t.size = 0x66,\n\t\t.y_offset = 0x5,\n\t}},"
+        )
+        declarations.extend(
+            [
+                f"extern const u8 {front_symbol}Tiles[];",
+                f"extern const u8 {front_symbol}Pal[];",
+                f"extern const u8 {back_symbol}Tiles[];",
+                f"extern const u8 {back_symbol}Pal[];",
+                f"extern const u8 {icon_symbol}Tiles[];",
+            ]
+        )
+
+    return {
+        "front_table": "\n".join(front) + "\n",
+        "back_table": "\n".join(back) + "\n",
+        "icon_table": "\n".join(icons) + "\n",
+        "palette_table": "\n".join(palettes) + "\n",
+        "shiny_palette_table": "\n".join(shiny_palettes) + "\n",
+        "icon_palette_table": "\n".join(icon_palettes) + "\n",
+        "front_coords": "\n".join(front_coords) + "\n",
+        "back_coords": "\n".join(back_coords) + "\n",
+        "sprite_data": "\n".join(declarations) + "\n",
+    }
+
+
 def patch_base_stats(text: str, species) -> str:
     if BASE_MARKER in text:
         return text
@@ -131,6 +235,45 @@ def patch_names(text: str, species) -> str:
     return text.rstrip() + "\n\n" + render_names(species)
 
 
+def patch_before_final_terminator(text: str, entry: str, marker: str) -> str:
+    if marker in text:
+        return text
+    pos = text.rfind("\n};")
+    if pos < 0:
+        raise ValueError(f"Could not find final table terminator for {marker}")
+    block = f"\n{marker}\n{entry.rstrip()}\n"
+    return text[:pos] + block + text[pos:]
+
+
+def patch_sprite_data(text: str, entry: str) -> str:
+    if SPRITE_DATA_MARKER in text:
+        return text
+    return text.rstrip() + f"\n\n{SPRITE_DATA_MARKER}\n{entry.rstrip()}\n"
+
+
+def patch_sprite_tables(species):
+    registration = render_sprite_registration(species)
+    patches = (
+        (FRONT_TABLE, registration["front_table"], FRONT_TABLE_MARKER),
+        (BACK_TABLE, registration["back_table"], BACK_TABLE_MARKER),
+        (ICON_TABLE, registration["icon_table"], ICON_TABLE_MARKER),
+        (PALETTE_TABLE, registration["palette_table"], PALETTE_TABLE_MARKER),
+        (SHINY_PALETTE_TABLE, registration["shiny_palette_table"], SHINY_PALETTE_TABLE_MARKER),
+        (ICON_PALETTE_TABLE, registration["icon_palette_table"], ICON_PALETTE_TABLE_MARKER),
+        (FRONT_COORDS_TABLE, registration["front_coords"], FRONT_COORDS_MARKER),
+        (BACK_COORDS_TABLE, registration["back_coords"], BACK_COORDS_MARKER),
+    )
+    for target, entry, marker in patches:
+        target.write_text(
+            patch_before_final_terminator(target.read_text(encoding="utf-8"), entry, marker),
+            encoding="utf-8",
+        )
+    SPRITE_DATA.write_text(
+        patch_sprite_data(SPRITE_DATA.read_text(encoding="utf-8"), registration["sprite_data"]),
+        encoding="utf-8",
+    )
+
+
 def backup_targets():
     BACKUP_DIR.mkdir(parents=True, exist_ok=True)
     for target in TARGETS:
@@ -155,9 +298,19 @@ def apply_overlay():
     species = load_species()
     backup_targets()
     try:
-        BASE_STATS.write_text(patch_base_stats(BASE_STATS.read_text(encoding="utf-8"), species), encoding="utf-8")
-        LEARNSETS.write_text(patch_learnsets(LEARNSETS.read_text(encoding="utf-8"), species), encoding="utf-8")
-        NAMES.write_text(patch_names(NAMES.read_text(encoding="utf-8"), species), encoding="utf-8")
+        BASE_STATS.write_text(
+            patch_base_stats(BASE_STATS.read_text(encoding="utf-8"), species),
+            encoding="utf-8",
+        )
+        LEARNSETS.write_text(
+            patch_learnsets(LEARNSETS.read_text(encoding="utf-8"), species),
+            encoding="utf-8",
+        )
+        NAMES.write_text(
+            patch_names(NAMES.read_text(encoding="utf-8"), species),
+            encoding="utf-8",
+        )
+        patch_sprite_tables(species)
     except Exception:
         restore_overlay()
         raise
@@ -165,7 +318,9 @@ def apply_overlay():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Apply or restore source-controlled Release Candidate data overlays for DPE.")
+    parser = argparse.ArgumentParser(
+        description="Apply or restore source-controlled Release Candidate data overlays for DPE."
+    )
     parser.add_argument("command", choices=("apply", "restore"), nargs="?", default="apply")
     args = parser.parse_args()
     if args.command == "restore":
