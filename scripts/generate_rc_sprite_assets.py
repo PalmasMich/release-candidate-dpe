@@ -133,9 +133,9 @@ def _icon_sprite():
 def generate_tartrek_assets(root: Path):
     root = Path(root)
     outputs = [
-        (root / "graphics/frontspr/gFrontSprite1268RCTartrek.png", _front_sprite(), 64, 64),
-        (root / "graphics/backspr/gBackShinySprite1268RCTartrek.png", _back_sprite(), 64, 64),
-        (root / "graphics/pokeicon/gIconSprite1268RCTartrek.png", _icon_sprite(), 32, 64),
+        (root / "graphics/frontspr/gFrontSprite1294RCTartrek.png", _front_sprite(), 64, 64),
+        (root / "graphics/backspr/gBackShinySprite1294RCTartrek.png", _back_sprite(), 64, 64),
+        (root / "graphics/pokeicon/gIconSprite1294RCTartrek.png", _icon_sprite(), 32, 64),
     ]
     written = []
     for path, pixels, width, height in outputs:
