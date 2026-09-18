@@ -9,7 +9,7 @@ Species ID: `SPECIES_RC_TURTLE_01`
 Required source assets:
 
 - `graphics/frontspr/gFrontSprite1268RCTartrek.png`
-- `graphics/backspr/gBackSprite1268RCTartrek.png`
+- `graphics/backspr/gBackShinySprite1268RCTartrek.png`
 - `graphics/pokeicon/gIconSprite1268RCTartrek.png`
 
 `1268` is the decimal value of the first Release Candidate species slot (`0x4F4`) immediately after upstream `SPECIES_URSHIFU_RAPID_GIGA` (`0x4F3`). The numeric prefix is part of the DPE asset-ordering convention and must remain aligned with the stable species ID.
@@ -17,7 +17,7 @@ Required source assets:
 Expected generated symbols:
 
 - `gFrontSprite1268RCTartrekTiles`
-- `gBackSprite1268RCTartrekTiles`
+- `gBackShinySprite1268RCTartrekTiles`
 - `gIconSprite1268RCTartrekTiles`
 
 The sprite-table overlay must register those symbols at `SPECIES_RC_TURTLE_01` in:
