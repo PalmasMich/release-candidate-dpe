@@ -51,6 +51,18 @@ class ReleaseCandidateSpriteRegistrationTest(unittest.TestCase):
         self.assertIn("gBackShinySprite1294RCTartrekPal", combined)
         self.assertIn("[SPECIES_RC_TURTLE_01] = 0x0", combined)
         self.assertIn(".size = 0x66", combined)
+        self.assertIn(
+            "[SPECIES_RC_CAGLIARI_WILD_01] = {gFrontSprite1297RCMistrilloTiles",
+            combined,
+        )
+        self.assertIn(
+            "[SPECIES_RC_CAGLIARI_WILD_01] = {gBackShinySprite1297RCMistrilloTiles",
+            combined,
+        )
+        self.assertIn(
+            "[SPECIES_RC_CAGLIARI_WILD_01] = gIconSprite1297RCMistrilloTiles",
+            combined,
+        )
 
     def test_registration_patch_is_idempotent(self):
         overlay = load_overlay()
