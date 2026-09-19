@@ -73,6 +73,32 @@ def EditInsert(offset: int):
     ChangeFileLine("./scripts/insert.py", 11, 'SOURCE_ROM = "' + ROM_NAME + '"\n')
 
 
+def RunPythonScript(scriptPath: str, *args: str) -> int:
+    python = "python3" if shutil.which('python3') is not None else "python"
+    command = " ".join([python, scriptPath, *args])
+    return os.system(command)
+
+
+def GenerateReleaseCandidateAssets():
+    result = RunPythonScript("scripts/generate_rc_sprite_assets.py")
+    if result != 0:
+        print("Error: Release Candidate sprite assets could not be generated.")
+        sys.exit(1)
+
+
+def ApplyReleaseCandidateOverlay():
+    result = RunPythonScript("scripts/apply_release_candidate_overlay.py", "apply")
+    if result != 0:
+        print("Error: Release Candidate DPE overlay could not be applied.")
+        sys.exit(1)
+
+
+def RestoreReleaseCandidateOverlay():
+    result = RunPythonScript("scripts/apply_release_candidate_overlay.py", "restore")
+    if result != 0:
+        print("Warning: Release Candidate DPE overlay restore failed. Check build/rc_overlay_backup before continuing.")
+
+
 def BuildCode():
     if shutil.which('python3') is not None:
         result = os.system("python3 scripts/build.py")
@@ -109,8 +135,13 @@ def main():
 
             EditLinker(offset)
             EditInsert(offset)
-            BuildCode()
-            InsertCode()
+            GenerateReleaseCandidateAssets()
+            ApplyReleaseCandidateOverlay()
+            try:
+                BuildCode()
+                InsertCode()
+            finally:
+                RestoreReleaseCandidateOverlay()
             rom.close()
 
     except FileNotFoundError:
@@ -120,4 +151,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

@@ -1,0 +1,323 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import binascii
+import struct
+import zlib
+
+PALETTE = [
+    (0, 0, 0),
+    (33, 54, 35),
+    (74, 112, 63),
+    (112, 153, 83),
+    (158, 190, 112),
+    (104, 78, 48),
+    (145, 108, 68),
+    (189, 151, 94),
+    (213, 195, 143),
+    (56, 73, 48),
+    (236, 229, 192),
+    (44, 44, 39),
+    (126, 92, 52),
+    (174, 128, 72),
+    (90, 132, 80),
+    (202, 175, 112),
+]
+
+
+def _chunk(kind: bytes, payload: bytes) -> bytes:
+    crc = binascii.crc32(kind + payload) & 0xFFFFFFFF
+    return struct.pack(">I", len(payload)) + kind + payload + struct.pack(">I", crc)
+
+
+def write_indexed_png(path: Path, pixels, width: int, height: int):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if len(pixels) != height or any(len(row) != width for row in pixels):
+        raise ValueError("pixel matrix dimensions do not match output dimensions")
+    if any(value < 0 or value > 15 for row in pixels for value in row):
+        raise ValueError("4-bit indexed PNG supports palette indices 0..15")
+
+    packed_rows = []
+    for row in pixels:
+        packed = bytearray([0])
+        for x in range(0, width, 2):
+            packed.append((row[x] << 4) | row[x + 1])
+        packed_rows.append(bytes(packed))
+
+    signature = b"\x89PNG\r\n\x1a\n"
+    ihdr = struct.pack(">IIBBBBB", width, height, 4, 3, 0, 0, 0)
+    plte = b"".join(bytes(rgb) for rgb in PALETTE)
+    trns = bytes([0] + [255] * 15)
+    idat = zlib.compress(b"".join(packed_rows), level=9)
+    path.write_bytes(
+        signature
+        + _chunk(b"IHDR", ihdr)
+        + _chunk(b"PLTE", plte)
+        + _chunk(b"tRNS", trns)
+        + _chunk(b"IDAT", idat)
+        + _chunk(b"IEND", b"")
+    )
+
+
+def _canvas(width, height):
+    return [[0 for _ in range(width)] for _ in range(height)]
+
+
+def _ellipse(canvas, cx, cy, rx, ry, colour):
+    height = len(canvas)
+    width = len(canvas[0])
+    for y in range(max(0, cy - ry), min(height, cy + ry + 1)):
+        for x in range(max(0, cx - rx), min(width, cx + rx + 1)):
+            if ((x - cx) * (x - cx)) / (rx * rx) + ((y - cy) * (y - cy)) / (ry * ry) <= 1:
+                canvas[y][x] = colour
+
+
+def _rect(canvas, x0, y0, x1, y1, colour):
+    for y in range(max(0, y0), min(len(canvas), y1 + 1)):
+        for x in range(max(0, x0), min(len(canvas[0]), x1 + 1)):
+            canvas[y][x] = colour
+
+
+def _outline_ellipse(canvas, cx, cy, rx, ry, outline, fill):
+    _ellipse(canvas, cx, cy, rx + 2, ry + 2, outline)
+    _ellipse(canvas, cx, cy, rx, ry, fill)
+
+
+def _front_sprite():
+    canvas = _canvas(64, 64)
+    _outline_ellipse(canvas, 31, 39, 18, 12, 1, 3)
+    _outline_ellipse(canvas, 27, 36, 13, 10, 11, 6)
+    _ellipse(canvas, 27, 35, 9, 7, 7)
+    _rect(canvas, 19, 31, 35, 33, 12)
+    _rect(canvas, 20, 34, 22, 43, 12)
+    _rect(canvas, 34, 34, 36, 43, 12)
+    _outline_ellipse(canvas, 45, 31, 9, 8, 1, 4)
+    _ellipse(canvas, 50, 29, 1, 1, 11)
+    _rect(canvas, 49, 29, 49, 29, 10)
+    _ellipse(canvas, 39, 38, 5, 3, 2)
+    _ellipse(canvas, 42, 40, 4, 2, 14)
+    _outline_ellipse(canvas, 20, 49, 5, 3, 1, 2)
+    _outline_ellipse(canvas, 39, 49, 5, 3, 1, 2)
+    _rect(canvas, 24, 29, 30, 30, 15)
+    _rect(canvas, 43, 25, 46, 26, 8)
+    return canvas
+
+
+def _back_sprite():
+    canvas = _canvas(64, 64)
+    _outline_ellipse(canvas, 32, 40, 18, 12, 1, 3)
+    _outline_ellipse(canvas, 31, 35, 15, 12, 11, 6)
+    _ellipse(canvas, 31, 34, 11, 9, 7)
+    _rect(canvas, 30, 25, 32, 45, 5)
+    _rect(canvas, 21, 33, 41, 35, 5)
+    _rect(canvas, 21, 28, 23, 44, 12)
+    _rect(canvas, 39, 28, 41, 44, 12)
+    _outline_ellipse(canvas, 44, 31, 8, 7, 1, 4)
+    _ellipse(canvas, 41, 27, 3, 2, 8)
+    _outline_ellipse(canvas, 21, 50, 5, 3, 1, 2)
+    _outline_ellipse(canvas, 40, 50, 5, 3, 1, 2)
+    return canvas
+
+
+def _icon_sprite():
+    canvas = _canvas(32, 64)
+    for frame, yoff in enumerate((0, 32)):
+        bob = 0 if frame == 0 else 1
+        _outline_ellipse(canvas, 15, yoff + 18 + bob, 10, 7, 1, 3)
+        _outline_ellipse(canvas, 13, yoff + 16 + bob, 7, 6, 11, 6)
+        _outline_ellipse(canvas, 23, yoff + 13 + bob, 5, 4, 1, 4)
+        _rect(canvas, 22, yoff + 12 + bob, 22, yoff + 12 + bob, 11)
+        _rect(canvas, 10, yoff + 12 + bob, 16, yoff + 13 + bob, 12)
+    return canvas
+
+
+def generate_tartrek_assets(root: Path):
+    root = Path(root)
+    outputs = [
+        (root / "graphics/frontspr/gFrontSprite1294RCTartrek.png", _front_sprite(), 64, 64),
+        (root / "graphics/backspr/gBackShinySprite1294RCTartrek.png", _back_sprite(), 64, 64),
+        (root / "graphics/pokeicon/gIconSprite1294RCTartrek.png", _icon_sprite(), 32, 64),
+    ]
+    written = []
+    for path, pixels, width, height in outputs:
+        write_indexed_png(path, pixels, width, height)
+        written.append(path)
+    return written
+
+
+
+
+def _mistrillo_front_sprite():
+    canvas = _canvas(64, 64)
+    _outline_ellipse(canvas, 31, 38, 13, 10, 11, 10)
+    _outline_ellipse(canvas, 41, 32, 8, 7, 11, 10)
+    _rect(canvas, 47, 31, 54, 33, 15)
+    _rect(canvas, 23, 36, 28, 49, 1)
+    _rect(canvas, 34, 36, 39, 49, 1)
+    _rect(canvas, 16, 37, 23, 40, 4)
+    _rect(canvas, 39, 37, 47, 40, 4)
+    _rect(canvas, 39, 29, 40, 30, 11)
+    _rect(canvas, 26, 48, 29, 50, 12)
+    _rect(canvas, 34, 48, 37, 50, 12)
+    return canvas
+
+
+def _mistrillo_back_sprite():
+    canvas = _canvas(64, 64)
+    _outline_ellipse(canvas, 31, 39, 14, 11, 11, 10)
+    _outline_ellipse(canvas, 41, 31, 8, 7, 11, 10)
+    _rect(canvas, 18, 36, 27, 40, 4)
+    _rect(canvas, 36, 36, 47, 40, 4)
+    _rect(canvas, 26, 48, 29, 51, 12)
+    _rect(canvas, 34, 48, 37, 51, 12)
+    _rect(canvas, 46, 30, 52, 32, 15)
+    return canvas
+
+
+def _mistrillo_icon_sprite():
+    canvas = _canvas(32, 64)
+    for frame, yoff in enumerate((0, 32)):
+        bob = frame
+        _outline_ellipse(canvas, 15, yoff + 18 + bob, 8, 6, 11, 10)
+        _outline_ellipse(canvas, 22, yoff + 14 + bob, 5, 4, 11, 10)
+        _rect(canvas, 26, yoff + 14 + bob, 29, yoff + 15 + bob, 15)
+        _rect(canvas, 8, yoff + 17 + bob, 12, yoff + 19 + bob, 4)
+    return canvas
+
+
+def generate_mistrillo_assets(root: Path):
+    root = Path(root)
+    outputs = [
+        (root / "graphics/frontspr/gFrontSprite1297RCMistrillo.png", _mistrillo_front_sprite(), 64, 64),
+        (root / "graphics/backspr/gBackShinySprite1297RCMistrillo.png", _mistrillo_back_sprite(), 64, 64),
+        (root / "graphics/pokeicon/gIconSprite1297RCMistrillo.png", _mistrillo_icon_sprite(), 32, 64),
+    ]
+    written = []
+    for path, pixels, width, height in outputs:
+        write_indexed_png(path, pixels, width, height)
+        written.append(path)
+    return written
+
+
+
+
+def _frobyte_front_sprite():
+    canvas = _canvas(64, 64)
+    _outline_ellipse(canvas, 31, 39, 14, 11, 1, 14)
+    _outline_ellipse(canvas, 31, 28, 10, 8, 1, 14)
+    _ellipse(canvas, 27, 26, 1, 1, 11)
+    _ellipse(canvas, 35, 26, 1, 1, 11)
+    _rect(canvas, 24, 33, 38, 35, 4)
+    _rect(canvas, 19, 41, 25, 45, 2)
+    _rect(canvas, 37, 41, 43, 45, 2)
+    _rect(canvas, 25, 49, 29, 52, 10)
+    _rect(canvas, 34, 49, 38, 52, 10)
+    return canvas
+
+
+def _frobyte_back_sprite():
+    canvas = _canvas(64, 64)
+    _outline_ellipse(canvas, 31, 40, 15, 11, 1, 14)
+    _outline_ellipse(canvas, 31, 29, 10, 8, 1, 14)
+    _rect(canvas, 23, 34, 39, 36, 4)
+    _rect(canvas, 18, 41, 24, 45, 2)
+    _rect(canvas, 38, 41, 44, 45, 2)
+    _rect(canvas, 25, 49, 29, 52, 10)
+    _rect(canvas, 34, 49, 38, 52, 10)
+    return canvas
+
+
+def _frobyte_icon_sprite():
+    canvas = _canvas(32, 64)
+    for frame, yoff in enumerate((0, 32)):
+        bob = frame
+        _outline_ellipse(canvas, 15, yoff + 18 + bob, 8, 7, 1, 14)
+        _outline_ellipse(canvas, 15, yoff + 11 + bob, 6, 5, 1, 14)
+        _rect(canvas, 8, yoff + 19 + bob, 11, yoff + 21 + bob, 2)
+        _rect(canvas, 20, yoff + 19 + bob, 23, yoff + 21 + bob, 2)
+    return canvas
+
+
+def generate_frobyte_assets(root: Path):
+    root = Path(root)
+    outputs = [
+        (root / "graphics/frontspr/gFrontSprite1295RCFrobyte.png", _frobyte_front_sprite(), 64, 64),
+        (root / "graphics/backspr/gBackShinySprite1295RCFrobyte.png", _frobyte_back_sprite(), 64, 64),
+        (root / "graphics/pokeicon/gIconSprite1295RCFrobyte.png", _frobyte_icon_sprite(), 32, 64),
+    ]
+    written = []
+    for path, pixels, width, height in outputs:
+        write_indexed_png(path, pixels, width, height)
+        written.append(path)
+    return written
+
+
+def _emberfox_front_sprite():
+    canvas = _canvas(64, 64)
+    _outline_ellipse(canvas, 31, 40, 14, 10, 11, 13)
+    _outline_ellipse(canvas, 31, 29, 9, 8, 11, 13)
+    _rect(canvas, 23, 18, 27, 25, 11)
+    _rect(canvas, 35, 18, 39, 25, 11)
+    _ellipse(canvas, 28, 28, 1, 1, 10)
+    _ellipse(canvas, 35, 28, 1, 1, 10)
+    _rect(canvas, 28, 35, 34, 37, 5)
+    _rect(canvas, 18, 38, 24, 42, 13)
+    _rect(canvas, 39, 38, 46, 42, 13)
+    _rect(canvas, 24, 49, 28, 52, 11)
+    _rect(canvas, 35, 49, 39, 52, 11)
+    _rect(canvas, 44, 42, 51, 46, 15)
+    return canvas
+
+
+def _emberfox_back_sprite():
+    canvas = _canvas(64, 64)
+    _outline_ellipse(canvas, 31, 41, 14, 10, 11, 13)
+    _outline_ellipse(canvas, 31, 29, 9, 8, 11, 13)
+    _rect(canvas, 23, 18, 27, 25, 11)
+    _rect(canvas, 35, 18, 39, 25, 11)
+    _rect(canvas, 18, 39, 24, 43, 13)
+    _rect(canvas, 39, 39, 46, 43, 13)
+    _rect(canvas, 24, 49, 28, 52, 11)
+    _rect(canvas, 35, 49, 39, 52, 11)
+    _rect(canvas, 44, 42, 51, 46, 15)
+    return canvas
+
+
+def _emberfox_icon_sprite():
+    canvas = _canvas(32, 64)
+    for frame, yoff in enumerate((0, 32)):
+        bob = frame
+        _outline_ellipse(canvas, 15, yoff + 19 + bob, 8, 6, 11, 13)
+        _outline_ellipse(canvas, 15, yoff + 12 + bob, 6, 5, 11, 13)
+        _rect(canvas, 10, yoff + 5 + bob, 12, yoff + 9 + bob, 11)
+        _rect(canvas, 18, yoff + 5 + bob, 20, yoff + 9 + bob, 11)
+        _rect(canvas, 23, yoff + 20 + bob, 27, yoff + 22 + bob, 15)
+    return canvas
+
+
+def generate_emberfox_assets(root: Path):
+    root = Path(root)
+    outputs = [
+        (root / "graphics/frontspr/gFrontSprite1296RCEmberfox.png", _emberfox_front_sprite(), 64, 64),
+        (root / "graphics/backspr/gBackShinySprite1296RCEmberfox.png", _emberfox_back_sprite(), 64, 64),
+        (root / "graphics/pokeicon/gIconSprite1296RCEmberfox.png", _emberfox_icon_sprite(), 32, 64),
+    ]
+    written = []
+    for path, pixels, width, height in outputs:
+        write_indexed_png(path, pixels, width, height)
+        written.append(path)
+    return written
+
+
+def main():
+    root = Path(__file__).resolve().parents[1]
+    for path in (
+        generate_tartrek_assets(root)
+        + generate_frobyte_assets(root)
+        + generate_emberfox_assets(root)
+        + generate_mistrillo_assets(root)
+    ):
+        print(path.relative_to(root))
+
+
+if __name__ == "__main__":
+    main()
