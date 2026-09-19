@@ -3,202 +3,70 @@
     {
       "id": "SPECIES_RC_TURTLE_01",
       "display_name": "Tartrek",
-      "role": "starter",
-      "types": [
-        "TYPE_GRASS",
-        "TYPE_GROUND"
-      ],
-      "base_stats": {
-        "hp": 48,
-        "attack": 55,
-        "defense": 60,
-        "sp_attack": 42,
-        "sp_defense": 55,
-        "speed": 40
-      },
+      "role": "starter_grass_preview",
+      "types": ["TYPE_GRASS", "TYPE_GROUND"],
+      "base_stats": {"hp": 48, "attack": 55, "defense": 60, "sp_attack": 42, "sp_defense": 55, "speed": 40},
       "catch_rate": 45,
       "exp_yield": 64,
       "gender_ratio_female_percent": 12.5,
       "egg_cycles": 20,
-      "friendship": 50,
+      "friendship": 70,
       "growth_rate": "GROWTH_MEDIUM_SLOW",
-      "egg_groups": [
-        "EGG_GROUP_MONSTER",
-        "EGG_GROUP_FIELD"
-      ],
-      "abilities": [
-        "ABILITY_OVERGROW",
-        "ABILITY_NONE"
-      ],
+      "egg_groups": ["EGG_GROUP_MONSTER", "EGG_GROUP_FIELD"],
+      "abilities": ["ABILITY_OVERGROW", "ABILITY_NONE"],
       "hidden_ability": "ABILITY_SHELLARMOR",
-      "learnset": [
-        [
-          1,
-          "MOVE_TACKLE"
-        ],
-        [
-          1,
-          "MOVE_WITHDRAW"
-        ],
-        [
-          5,
-          "MOVE_VINEWHIP"
-        ],
-        [
-          7,
-          "MOVE_MUDSLAP"
-        ]
-      ]
+      "learnset": [[1, "MOVE_TACKLE"], [1, "MOVE_WITHDRAW"], [5, "MOVE_VINEWHIP"], [7, "MOVE_MUDSLAP"]]
     },
     {
       "id": "SPECIES_RC_FROG_01",
       "display_name": "Frobyte",
       "role": "starter_water_preview",
-      "types": [
-        "TYPE_WATER",
-        "TYPE_ELECTRIC"
-      ],
-      "base_stats": {
-        "hp": 46,
-        "attack": 45,
-        "defense": 44,
-        "sp_attack": 58,
-        "sp_defense": 50,
-        "speed": 57
-      },
+      "types": ["TYPE_WATER", "TYPE_ELECTRIC"],
+      "base_stats": {"hp": 46, "attack": 45, "defense": 44, "sp_attack": 58, "sp_defense": 50, "speed": 57},
       "catch_rate": 45,
       "exp_yield": 64,
       "gender_ratio_female_percent": 12.5,
       "egg_cycles": 20,
       "friendship": 70,
       "growth_rate": "GROWTH_MEDIUM_SLOW",
-      "egg_groups": [
-        "EGG_GROUP_MONSTER",
-        "EGG_GROUP_WATER_1"
-      ],
-      "abilities": [
-        "ABILITY_TORRENT",
-        "ABILITY_NONE"
-      ],
+      "egg_groups": ["EGG_GROUP_MONSTER", "EGG_GROUP_WATER_1"],
+      "abilities": ["ABILITY_TORRENT", "ABILITY_NONE"],
       "hidden_ability": "ABILITY_STATIC",
-      "learnset": [
-        [
-          1,
-          "MOVE_POUND"
-        ],
-        [
-          1,
-          "MOVE_GROWL"
-        ],
-        [
-          5,
-          "MOVE_WATERGUN"
-        ],
-        [
-          7,
-          "MOVE_THUNDERSHOCK"
-        ]
-      ]
+      "learnset": [[1, "MOVE_POUND"], [1, "MOVE_GROWL"], [5, "MOVE_WATERGUN"], [7, "MOVE_THUNDERSHOCK"]]
     },
     {
       "id": "SPECIES_RC_FIREFOX_01",
       "display_name": "Emberfox",
       "role": "starter_fire_preview",
-      "types": [
-        "TYPE_FIRE",
-        "TYPE_DARK"
-      ],
-      "base_stats": {
-        "hp": 44,
-        "attack": 56,
-        "defense": 40,
-        "sp_attack": 54,
-        "sp_defense": 44,
-        "speed": 62
-      },
+      "types": ["TYPE_FIRE", "TYPE_DARK"],
+      "base_stats": {"hp": 44, "attack": 56, "defense": 40, "sp_attack": 54, "sp_defense": 44, "speed": 62},
       "catch_rate": 45,
       "exp_yield": 64,
       "gender_ratio_female_percent": 12.5,
       "egg_cycles": 20,
       "friendship": 70,
       "growth_rate": "GROWTH_MEDIUM_SLOW",
-      "egg_groups": [
-        "EGG_GROUP_FIELD",
-        "EGG_GROUP_FIELD"
-      ],
-      "abilities": [
-        "ABILITY_BLAZE",
-        "ABILITY_NONE"
-      ],
+      "egg_groups": ["EGG_GROUP_FIELD", "EGG_GROUP_FIELD"],
+      "abilities": ["ABILITY_BLAZE", "ABILITY_NONE"],
       "hidden_ability": "ABILITY_RUNAWAY",
-      "learnset": [
-        [
-          1,
-          "MOVE_SCRATCH"
-        ],
-        [
-          1,
-          "MOVE_TAILWHIP"
-        ],
-        [
-          5,
-          "MOVE_EMBER"
-        ],
-        [
-          7,
-          "MOVE_BITE"
-        ]
-      ]
+      "learnset": [[1, "MOVE_SCRATCH"], [1, "MOVE_TAILWHIP"], [5, "MOVE_EMBER"], [7, "MOVE_BITE"]]
     },
     {
       "id": "SPECIES_RC_CAGLIARI_WILD_01",
       "display_name": "Mistrillo",
       "role": "cagliari_wild",
-      "types": [
-        "TYPE_FLYING",
-        "TYPE_NORMAL"
-      ],
-      "base_stats": {
-        "hp": 42,
-        "attack": 48,
-        "defense": 38,
-        "sp_attack": 50,
-        "sp_defense": 40,
-        "speed": 62
-      },
+      "types": ["TYPE_FLYING", "TYPE_NORMAL"],
+      "base_stats": {"hp": 42, "attack": 48, "defense": 38, "sp_attack": 50, "sp_defense": 40, "speed": 62},
       "catch_rate": 190,
       "exp_yield": 54,
       "gender_ratio_female_percent": 50,
       "egg_cycles": 15,
       "friendship": 50,
       "growth_rate": "GROWTH_MEDIUM_FAST",
-      "egg_groups": [
-        "EGG_GROUP_FLYING",
-        "EGG_GROUP_FLYING"
-      ],
-      "abilities": [
-        "ABILITY_KEENEYE",
-        "ABILITY_NONE"
-      ],
+      "egg_groups": ["EGG_GROUP_FLYING", "EGG_GROUP_FLYING"],
+      "abilities": ["ABILITY_KEENEYE", "ABILITY_NONE"],
       "hidden_ability": "ABILITY_BIGPECKS",
-      "learnset": [
-        [
-          1,
-          "MOVE_GUST"
-        ],
-        [
-          1,
-          "MOVE_GROWL"
-        ],
-        [
-          4,
-          "MOVE_QUICKATTACK"
-        ],
-        [
-          7,
-          "MOVE_SANDATTACK"
-        ]
-      ]
+      "learnset": [[1, "MOVE_GUST"], [1, "MOVE_GROWL"], [4, "MOVE_QUICKATTACK"], [7, "MOVE_SANDATTACK"]]
     }
   ]
 }
