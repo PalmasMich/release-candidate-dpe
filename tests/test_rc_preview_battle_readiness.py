@@ -4,18 +4,26 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SPECIES_FILE = ROOT / "release_candidate" / "preview_species.json"
+RUNTIME_CONTRACT = ROOT / "release_candidate" / "preview_runtime_contract.json"
 
 
 class RCPreviewBattleReadinessTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.species = {item["id"]: item for item in json.loads(SPECIES_FILE.read_text())["species"]}
+        cls.runtime = {item["symbol"]: item for item in json.loads(RUNTIME_CONTRACT.read_text())["runtime_species"]}
 
     def test_preview_species_have_usable_level_one_moves(self):
         for species_id, item in self.species.items():
             level_one = [move for level, move in item["learnset"] if level == 1]
             self.assertGreaterEqual(len(level_one), 2, species_id)
             self.assertTrue(any(move not in {"MOVE_GROWL", "MOVE_WITHDRAW", "MOVE_TAILWHIP"} for move in level_one), species_id)
+
+    def test_runtime_contract_level_five_moves_match_species_data(self):
+        self.assertEqual(set(self.runtime), set(self.species))
+        for species_id, contract in self.runtime.items():
+            learned = {move for level, move in self.species[species_id]["learnset"] if level <= 5}
+            self.assertEqual(set(contract["required_at_level_5"]), learned, species_id)
 
     def test_starters_gain_a_typed_attack_by_level_five(self):
         expected = {
@@ -32,6 +40,7 @@ class RCPreviewBattleReadinessTest(unittest.TestCase):
         level_one = {move for level, move in mistrillo["learnset"] if level == 1}
         self.assertIn("MOVE_GUST", level_one)
         self.assertEqual(mistrillo["role"], "cagliari_wild")
+        self.assertEqual(self.runtime["SPECIES_RC_CAGLIARI_WILD_01"]["port_link_weight_percent"], 60)
 
 
 if __name__ == "__main__":
