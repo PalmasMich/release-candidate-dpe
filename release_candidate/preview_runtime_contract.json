@@ -18,6 +18,7 @@
       "id": "0x050F",
       "name": "Frobyte",
       "role": "alternate starter",
+      "required_at_level_5": ["MOVE_POUND", "MOVE_GROWL", "MOVE_WATERGUN"],
       "required_assets": ["front", "back", "icon", "palette"]
     },
     {
@@ -25,6 +26,7 @@
       "id": "0x0510",
       "name": "Emberfox",
       "role": "alternate starter",
+      "required_at_level_5": ["MOVE_SCRATCH", "MOVE_TAILWHIP", "MOVE_EMBER"],
       "required_assets": ["front", "back", "icon", "palette"]
     },
     {
@@ -32,9 +34,10 @@
       "id": "0x0511",
       "name": "Mistrillo",
       "role": "first custom Cagliari field encounter",
+      "required_at_level_5": ["MOVE_GUST", "MOVE_GROWL", "MOVE_QUICKATTACK"],
       "port_link_weight_percent": 60,
       "required_assets": ["front", "back", "icon", "palette"]
     }
   ],
-  "failure_policy": "The CFRU build must fail before producing the final private preview if any required RC symbol or generated asset is absent."
+  "failure_policy": "The CFRU build must fail before producing the final private preview if any required RC symbol, generated asset, or required level-5 move is absent."
 }
