@@ -1,0 +1,72 @@
+{
+  "version": "0.2",
+  "policy": {
+    "concept_is_north_star_not_source_bitmap": true,
+    "generated_bootstrap_assets_are_not_final": true,
+    "required_stage_order": [
+      "concept_north_star",
+      "silhouette",
+      "front_pose",
+      "back_pose",
+      "reduced_palette",
+      "icon",
+      "gba_integration"
+    ]
+  },
+  "starters": [
+    {
+      "species_id": "SPECIES_RC_TURTLE_01",
+      "display_name": "Tartrek",
+      "slot_hex": "0x050E",
+      "slot_decimal": 1294,
+      "direction": "young limestone trail scout; calm, reliable, curious; olive, sage, sand and limestone",
+      "stages": {
+        "concept_north_star": "approved",
+        "silhouette": "pending",
+        "front_pose": "bootstrap",
+        "back_pose": "bootstrap",
+        "reduced_palette": "bootstrap",
+        "icon": "bootstrap",
+        "gba_integration": "bootstrap"
+      },
+      "production_ready": false,
+      "review_evidence": null
+    },
+    {
+      "species_id": "SPECIES_RC_FROG_01",
+      "display_name": "Frobyte",
+      "slot_hex": "0x050F",
+      "slot_decimal": 1295,
+      "direction": "agile blue storm frog; reactive and alert; blue, cyan and yellow with a charged throat sac",
+      "stages": {
+        "concept_north_star": "approved",
+        "silhouette": "pending",
+        "front_pose": "bootstrap",
+        "back_pose": "bootstrap",
+        "reduced_palette": "bootstrap",
+        "icon": "bootstrap",
+        "gba_integration": "bootstrap"
+      },
+      "production_ready": false,
+      "review_evidence": null
+    },
+    {
+      "species_id": "SPECIES_RC_FIREFOX_01",
+      "display_name": "Emberfox",
+      "slot_hex": "0x0510",
+      "slot_decimal": 1296,
+      "direction": "elegant ember-shadow fox; clever and self-assured; deep red, orange and charcoal",
+      "stages": {
+        "concept_north_star": "approved",
+        "silhouette": "pending",
+        "front_pose": "bootstrap",
+        "back_pose": "bootstrap",
+        "reduced_palette": "bootstrap",
+        "icon": "bootstrap",
+        "gba_integration": "bootstrap"
+      },
+      "production_ready": false,
+      "review_evidence": null
+    }
+  ]
+}
