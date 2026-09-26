@@ -1008,8 +1008,13 @@ enum
 #define NATIONAL_DEX_SPECTRIER 897
 #define NATIONAL_DEX_CALYREX 898
 
-#define FINAL_DEX_ENTRY NATIONAL_DEX_CALYREX //Not +1 b/c used like this for some asm
+#define FINAL_DEX_ENTRY NATIONAL_DEX_RC_MISTRILLO //Not +1 b/c used like this for some asm
 #define NATIONAL_DEX_COUNT FINAL_DEX_ENTRY + 1
+
+extern const u8 DEX_ENTRY_RC_TARTREK[];
+extern const u8 DEX_ENTRY_RC_FROBYTE[];
+extern const u8 DEX_ENTRY_RC_EMBERFOX[];
+extern const u8 DEX_ENTRY_RC_MISTRILLO[];
 
 extern const u8 DEX_ENTRY_TURTWIG[];
 extern const u8 DEX_ENTRY_GROTLE[];
