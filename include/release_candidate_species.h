@@ -19,6 +19,17 @@
 #define SPECIES_RC_CAGLIARI_WILD_01   0x511
 #define SPECIES_RC_CAGLIARI_WILD_02   0x512
 
+/*
+ * Active RC creatures need real, non-zero Pokédex identities. ScriptGiveMon
+ * records seen/caught flags immediately after adding a gift to the party;
+ * leaving these species at the designated-array default (0) sends that path
+ * an invalid National Dex number.
+ */
+#define NATIONAL_DEX_RC_TARTREK       899
+#define NATIONAL_DEX_RC_FROBYTE       900
+#define NATIONAL_DEX_RC_EMBERFOX      901
+#define NATIONAL_DEX_RC_MISTRILLO     902
+
 /* Extend DPE table sizing without altering the upstream species.h file. */
 #undef NUM_SPECIES
 #define NUM_SPECIES (SPECIES_RC_CAGLIARI_WILD_02 + 1)
