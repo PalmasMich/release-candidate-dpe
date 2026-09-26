@@ -86,6 +86,13 @@ def GenerateReleaseCandidateAssets():
         sys.exit(1)
 
 
+def ValidateReleaseCandidateArtContract():
+    result = RunPythonScript("scripts/validate_rc_art_pipeline.py")
+    if result != 0:
+        print("Error: Release Candidate starter art contract is invalid.")
+        sys.exit(1)
+
+
 def ApplyReleaseCandidateOverlay():
     result = RunPythonScript("scripts/apply_release_candidate_overlay.py", "apply")
     if result != 0:
@@ -135,6 +142,7 @@ def main():
 
             EditLinker(offset)
             EditInsert(offset)
+            ValidateReleaseCandidateArtContract()
             GenerateReleaseCandidateAssets()
             ApplyReleaseCandidateOverlay()
             try:
