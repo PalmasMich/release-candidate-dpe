@@ -18,6 +18,11 @@ SHINY_PALETTE_TABLE = ROOT / "src" / "Shiny_Palette_Table.c"
 ICON_PALETTE_TABLE = ROOT / "src" / "Icon_Palette_Table.c"
 FRONT_COORDS_TABLE = ROOT / "src" / "Front_Pic_Coords_Table.c"
 BACK_COORDS_TABLE = ROOT / "src" / "Back_Pic_Coords_Table.c"
+SPECIES_TO_POKEDEX = ROOT / "src" / "Species_To_Pokdex_Table.c"
+POKEDEX_DATA = ROOT / "src" / "Pokedex_Data_Table.c"
+POKEDEX_STRINGS = ROOT / "strings" / "Pokedex_Data.string"
+CRY_TABLE = ROOT / "src" / "Cry_Table.c"
+CRY_TABLE_2 = ROOT / "src" / "Cry_Table_2.c"
 SPRITE_DATA = ROOT / "include" / "sprite_data.h"
 BACKUP_DIR = ROOT / "build" / "rc_overlay_backup"
 
@@ -32,6 +37,11 @@ SHINY_PALETTE_TABLE_MARKER = "/* RC_OVERLAY:SHINY_PALETTE_TABLE */"
 ICON_PALETTE_TABLE_MARKER = "/* RC_OVERLAY:ICON_PALETTE_TABLE */"
 FRONT_COORDS_MARKER = "/* RC_OVERLAY:FRONT_COORDS */"
 BACK_COORDS_MARKER = "/* RC_OVERLAY:BACK_COORDS */"
+SPECIES_TO_POKEDEX_MARKER = "/* RC_OVERLAY:SPECIES_TO_POKEDEX */"
+POKEDEX_DATA_MARKER = "/* RC_OVERLAY:POKEDEX_DATA */"
+POKEDEX_STRINGS_MARKER = "#org @DEX_ENTRY_RC_TARTREK"
+CRY_TABLE_MARKER = "/* RC_OVERLAY:CRY_TABLE */"
+CRY_TABLE_2_MARKER = "/* RC_OVERLAY:CRY_TABLE_2 */"
 SPRITE_DATA_MARKER = "/* RC_OVERLAY:SPRITE_DATA */"
 
 TARGETS = (
@@ -46,6 +56,11 @@ TARGETS = (
     ICON_PALETTE_TABLE,
     FRONT_COORDS_TABLE,
     BACK_COORDS_TABLE,
+    SPECIES_TO_POKEDEX,
+    POKEDEX_DATA,
+    POKEDEX_STRINGS,
+    CRY_TABLE,
+    CRY_TABLE_2,
     SPRITE_DATA,
 )
 
@@ -144,6 +159,87 @@ def render_names(species):
     return "\n".join(chunks).rstrip() + "\n"
 
 
+def render_species_to_pokedex(species):
+    lines = []
+    for mon in species:
+        lines.append(
+            f"\t[{mon['id']} - 1] = {mon['national_dex_symbol']},"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def _category_tokens(category: str) -> str:
+    if len(category) > 11 or not category.replace(" ", "").isalpha():
+        raise ValueError(f"Invalid RC Pokédex category: {category!r}")
+    tokens = ["_SPACE" if char == " " else f"_{char}" for char in category]
+    tokens.append("_END")
+    tokens.extend(["_SPACE"] * (12 - len(tokens)))
+    return ", ".join(tokens)
+
+
+def render_pokedex_data(species):
+    blocks = []
+    for mon in species:
+        dex = mon["pokedex"]
+        blocks.append(
+            f"\t[{mon['national_dex_symbol']}] =\n"
+            "\t{\n"
+            f"\t\t.categoryName = {{{_category_tokens(dex['category'])}}},\n"
+            f"\t\t.height = {dex['height']},\n"
+            f"\t\t.weight = {dex['weight']},\n"
+            f"\t\t.description = {dex['description_symbol']},\n"
+            "\t\t.unusedDescription = (const u8*) 0x8444cb1,\n"
+            "\t\t.pokemonScale = 256,\n"
+            "\t\t.pokemonOffset = 0,\n"
+            "\t\t.trainerScale = 256,\n"
+            "\t\t.trainerOffset = 0,\n"
+            "\t},"
+        )
+    return "\n".join(blocks) + "\n"
+
+
+def render_pokedex_strings(species):
+    chunks = []
+    for mon in species:
+        dex = mon["pokedex"]
+        chunks.extend((f"#org @{dex['description_symbol']}", dex["description"], ""))
+    return "\n".join(chunks).rstrip() + "\n"
+
+
+def _extract_designated_initializer(text: str, species_symbol: str) -> str:
+    anchor = f"[{species_symbol}] ="
+    start = text.find(anchor)
+    if start < 0:
+        raise ValueError(f"Could not find cry fallback {species_symbol}")
+    brace = text.find("{", start)
+    if brace < 0:
+        raise ValueError(f"Cry fallback {species_symbol} has no initializer")
+    depth = 0
+    end = None
+    for pos in range(brace, len(text)):
+        if text[pos] == "{":
+            depth += 1
+        elif text[pos] == "}":
+            depth -= 1
+            if depth == 0:
+                end = pos + 1
+                break
+    if end is None:
+        raise ValueError(f"Cry fallback {species_symbol} has an unterminated initializer")
+    while end < len(text) and text[end] in ",\r\n":
+        end += 1
+    return text[start:end].rstrip()
+
+
+def render_cry_table_entries(species, source_text: str) -> str:
+    blocks = []
+    for mon in species:
+        fallback = mon["cry_source_species"]
+        block = _extract_designated_initializer(source_text, fallback)
+        blocks.append(block.replace(f"[{fallback}]", f"[{mon['id']}]", 1))
+    return "\n".join(blocks) + "\n"
+
+
 def render_sprite_registration(species):
     front = []
     back = []
@@ -238,6 +334,27 @@ def patch_names(text: str, species) -> str:
     return text.rstrip() + "\n\n" + render_names(species)
 
 
+def patch_pokedex_strings(text: str, species) -> str:
+    if POKEDEX_STRINGS_MARKER in text:
+        return text
+    return text.rstrip() + "\n\n" + render_pokedex_strings(species)
+
+
+def patch_pokedex_data(text: str, species) -> str:
+    if POKEDEX_DATA_MARKER in text:
+        return text
+    table_marker = "const struct PokedexEntry gPokedexEntries[NATIONAL_DEX_COUNT] ="
+    table_pos = text.find(table_marker)
+    if table_pos < 0:
+        raise ValueError("Could not find gPokedexEntries table")
+    open_brace = text.find("{", table_pos)
+    close_brace = text.find("\n};", open_brace)
+    if open_brace < 0 or close_brace < 0:
+        raise ValueError("Could not find gPokedexEntries table boundaries")
+    block = f"\n{POKEDEX_DATA_MARKER}\n{render_pokedex_data(species).rstrip()}\n"
+    return text[:close_brace] + block + text[close_brace:]
+
+
 def patch_before_final_terminator(text: str, entry: str, marker: str) -> str:
     if marker in text:
         return text
@@ -311,6 +428,40 @@ def apply_overlay():
         )
         NAMES.write_text(
             patch_names(NAMES.read_text(encoding="utf-8"), species),
+            encoding="utf-8",
+        )
+        SPECIES_TO_POKEDEX.write_text(
+            patch_before_final_terminator(
+                SPECIES_TO_POKEDEX.read_text(encoding="utf-8"),
+                render_species_to_pokedex(species),
+                SPECIES_TO_POKEDEX_MARKER,
+            ),
+            encoding="utf-8",
+        )
+        POKEDEX_DATA.write_text(
+            patch_pokedex_data(POKEDEX_DATA.read_text(encoding="utf-8"), species),
+            encoding="utf-8",
+        )
+        POKEDEX_STRINGS.write_text(
+            patch_pokedex_strings(
+                POKEDEX_STRINGS.read_text(encoding="utf-8"), species
+            ),
+            encoding="utf-8",
+        )
+        CRY_TABLE.write_text(
+            patch_before_final_terminator(
+                CRY_TABLE.read_text(encoding="utf-8"),
+                render_cry_table_entries(species, CRY_TABLE.read_text(encoding="utf-8")),
+                CRY_TABLE_MARKER,
+            ),
+            encoding="utf-8",
+        )
+        CRY_TABLE_2.write_text(
+            patch_before_final_terminator(
+                CRY_TABLE_2.read_text(encoding="utf-8"),
+                render_cry_table_entries(species, CRY_TABLE_2.read_text(encoding="utf-8")),
+                CRY_TABLE_2_MARKER,
+            ),
             encoding="utf-8",
         )
         patch_sprite_tables(species)
