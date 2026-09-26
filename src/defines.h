@@ -2,6 +2,7 @@
 
 #include "../include/types.h"
 #include "../include/species.h"
+#include "../include/release_candidate_species.h"
 
 #define EVOS_PER_MON 16
 

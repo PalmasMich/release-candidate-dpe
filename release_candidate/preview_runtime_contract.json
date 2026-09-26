@@ -1,0 +1,47 @@
+{
+  "preview": "Cagliari Preview 0.1",
+  "namespace": {
+    "first_rc_species": "0x050E",
+    "policy": "append-only for the preview; IDs stay stable even if placeholder names change"
+  },
+  "runtime_species": [
+    {
+      "symbol": "SPECIES_RC_TURTLE_01",
+      "id": "0x050E",
+      "national_dex": 899,
+      "name": "Tartrek",
+      "role": "primary smoke-test starter",
+      "required_at_level_5": ["MOVE_TACKLE", "MOVE_WITHDRAW", "MOVE_VINEWHIP"],
+      "required_assets": ["front", "back", "icon", "palette"]
+    },
+    {
+      "symbol": "SPECIES_RC_FROG_01",
+      "id": "0x050F",
+      "national_dex": 900,
+      "name": "Frobyte",
+      "role": "alternate starter",
+      "required_at_level_5": ["MOVE_POUND", "MOVE_GROWL", "MOVE_WATERGUN"],
+      "required_assets": ["front", "back", "icon", "palette"]
+    },
+    {
+      "symbol": "SPECIES_RC_FIREFOX_01",
+      "id": "0x0510",
+      "national_dex": 901,
+      "name": "Emberfox",
+      "role": "alternate starter",
+      "required_at_level_5": ["MOVE_SCRATCH", "MOVE_TAILWHIP", "MOVE_EMBER"],
+      "required_assets": ["front", "back", "icon", "palette"]
+    },
+    {
+      "symbol": "SPECIES_RC_CAGLIARI_WILD_01",
+      "id": "0x0511",
+      "national_dex": 902,
+      "name": "Mistrillo",
+      "role": "first custom Cagliari field encounter",
+      "required_at_level_5": ["MOVE_GUST", "MOVE_GROWL", "MOVE_QUICKATTACK"],
+      "port_link_weight_percent": 60,
+      "required_assets": ["front", "back", "icon", "palette"]
+    }
+  ],
+  "failure_policy": "The CFRU build must fail before producing the final private preview if any required RC symbol, generated asset, or required level-5 move is absent."
+}
