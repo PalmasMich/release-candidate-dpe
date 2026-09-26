@@ -1,50 +1,56 @@
-# Release Candidate Preview Art Contract
+# Release Candidate — Starter Art Contract v0.2
 
-This document defines the battle-art contract for original Preview species before the binary ROM build is available.
+This contract separates technically valid bootstrap graphics from reviewed production art. The generated sprites keep private builds reproducible, but they are not approved final assets.
 
-## First starter: Tartrek
+## Stable asset slots
 
-Species ID: `SPECIES_RC_TURTLE_01`
+| Species | Stable ID | Decimal asset prefix | Required generated symbols |
+| --- | ---: | ---: | --- |
+| Tartrek / `SPECIES_RC_TURTLE_01` | `0x050E` | 1294 | `gFrontSprite1294RCTartrekTiles`, `gBackShinySprite1294RCTartrekTiles`, `gIconSprite1294RCTartrekTiles` |
+| Frobyte / `SPECIES_RC_FROG_01` | `0x050F` | 1295 | `gFrontSprite1295RCFrobyteTiles`, `gBackShinySprite1295RCFrobyteTiles`, `gIconSprite1295RCFrobyteTiles` |
+| Emberfox / `SPECIES_RC_FIREFOX_01` | `0x0510` | 1296 | `gFrontSprite1296RCEmberfoxTiles`, `gBackShinySprite1296RCEmberfoxTiles`, `gIconSprite1296RCEmberfoxTiles` |
+| Mistrillo / `SPECIES_RC_CAGLIARI_WILD_01` | `0x0511` | 1297 | `gFrontSprite1297RCMistrilloTiles`, `gBackShinySprite1297RCMistrilloTiles`, `gIconSprite1297RCMistrilloTiles` |
 
-Required source assets:
+These IDs are save-facing and append-only. Art replacement must not renumber them.
 
-- `graphics/frontspr/gFrontSprite1268RCTartrek.png`
-- `graphics/backspr/gBackShinySprite1268RCTartrek.png`
-- `graphics/pokeicon/gIconSprite1268RCTartrek.png`
+## Required files per species
 
-`1268` is the decimal value of the first Release Candidate species slot (`0x4F4`) immediately after upstream `SPECIES_URSHIFU_RAPID_GIGA` (`0x4F3`). The numeric prefix is part of the DPE asset-ordering convention and must remain aligned with the stable species ID.
+- `graphics/frontspr/gFrontSprite<slot><name>.png` — 64×64 indexed battle front;
+- `graphics/backspr/gBackShinySprite<slot><name>.png` — 64×64 indexed back sheet used by the current DPE pipeline;
+- `graphics/pokeicon/gIconSprite<slot><name>.png` — 32×64 two-frame indexed icon;
+- normal, shiny, and icon palette registrations;
+- front and back coordinate registrations.
 
-Expected generated symbols:
+PNG inputs must use 4-bit indexed colour, palette index 0 as transparency, and no more than 16 palette entries.
 
-- `gFrontSprite1268RCTartrekTiles`
-- `gBackShinySprite1268RCTartrekTiles`
-- `gIconSprite1268RCTartrekTiles`
+## Mandatory production sequence
 
-The sprite-table overlay must register those symbols at `SPECIES_RC_TURTLE_01` in:
+1. approved concept as a north star;
+2. silhouette review at native size;
+3. authored front pose;
+4. authored back pose;
+5. reduced-palette review;
+6. icon review;
+7. GBA integration and runtime smoke.
 
-- `src/Front_Pic_Table.c`
-- `src/Back_Pic_Table.c`
-- `src/Icon_Table.c`
-- required coordinate and palette tables
-- `include/sprite_data.h` declarations
+Do not raster-convert a rich concept and call the result final. Front, back, and icon must be deliberately redrawn for their native dimensions.
 
-## Visual constraints
+The machine-readable state lives in `release_candidate/starter_art_manifest.json`. Validate it with:
 
-- Front/back battle art: authored for the existing DPE 64×64 battle-sprite pipeline.
-- Icon: authored for the existing DPE party/icon pipeline.
-- Indexed palette and transparency must match DPE/Grit expectations.
-- Design identity: turtle/wanderer, Grass/Ground, sturdy rather than fast.
-- Do not copy Pokémon, Unbound, or third-party fan-project artwork.
-- `Tartrek` is the current working display name; changing the displayed name before Preview 0.1 does not change the stable species ID or asset slot.
+```bash
+python scripts/validate_rc_art_pipeline.py
+```
 
-## Next slots
+That command currently reports `RC_STARTER_ART_STATUS=BOOTSTRAP`. The release approval gate is deliberately stricter:
 
-The contiguous Preview slots are:
+```bash
+python scripts/validate_rc_art_pipeline.py --require-approved
+```
 
-- `0x4F4` / 1268 — `SPECIES_RC_TURTLE_01`
-- `0x4F5` / 1269 — `SPECIES_RC_FROG_01`
-- `0x4F6` / 1270 — `SPECIES_RC_FIREFOX_01`
-- `0x4F7` / 1271 — `SPECIES_RC_CAGLIARI_WILD_01`
-- `0x4F8` / 1272 — `SPECIES_RC_CAGLIARI_WILD_02`
+It must remain blocked until all seven stages for all three starters are `approved` and contain review evidence.
 
-Once a species appears in a distributed playable build/save, its numeric slot is append-only and must not be recycled.
+## Current generator status
+
+`scripts/generate_rc_sprite_assets.py` produces original, deterministic placeholder graphics for private technical builds. Those files prove dimensions, indexing, symbols, table integration, and palette transport only. They do not satisfy silhouette, pose, palette, or final-art approval.
+
+No Nintendo, Pokémon, Unbound, or third-party fan-project artwork may be copied or traced.
