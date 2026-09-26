@@ -8,6 +8,7 @@
     {
       "symbol": "SPECIES_RC_TURTLE_01",
       "id": "0x050E",
+      "national_dex": 899,
       "name": "Tartrek",
       "role": "primary smoke-test starter",
       "required_at_level_5": ["MOVE_TACKLE", "MOVE_WITHDRAW", "MOVE_VINEWHIP"],
@@ -16,6 +17,7 @@
     {
       "symbol": "SPECIES_RC_FROG_01",
       "id": "0x050F",
+      "national_dex": 900,
       "name": "Frobyte",
       "role": "alternate starter",
       "required_at_level_5": ["MOVE_POUND", "MOVE_GROWL", "MOVE_WATERGUN"],
@@ -24,6 +26,7 @@
     {
       "symbol": "SPECIES_RC_FIREFOX_01",
       "id": "0x0510",
+      "national_dex": 901,
       "name": "Emberfox",
       "role": "alternate starter",
       "required_at_level_5": ["MOVE_SCRATCH", "MOVE_TAILWHIP", "MOVE_EMBER"],
@@ -32,6 +35,7 @@
     {
       "symbol": "SPECIES_RC_CAGLIARI_WILD_01",
       "id": "0x0511",
+      "national_dex": 902,
       "name": "Mistrillo",
       "role": "first custom Cagliari field encounter",
       "required_at_level_5": ["MOVE_GUST", "MOVE_GROWL", "MOVE_QUICKATTACK"],
